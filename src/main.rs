@@ -3,6 +3,7 @@ use lapin::{Connection, ConnectionProperties, options::*, types::FieldTable};
 #[allow(deprecated)]
 use tokio_amqp::LapinTokioExt;
 use futures::StreamExt;
+use std::{thread, time};
 
 #[derive(Debug, Clone, BorshDeserialize, BorshSerialize)]
 pub struct UserCreatedEventMessage {
@@ -41,6 +42,9 @@ async fn main() {
 
     while let Some(delivery) = consumer.next().await {
         let delivery = delivery.unwrap();
+        let ten_millis = time::Duration::from_millis(1000);
+        let now = time::Instant::now();
+        thread::sleep(ten_millis);
         let message = UserCreatedEventMessage::try_from_slice(&delivery.data).unwrap();
         println!("In Fathir's Computer [2406495640]. Message received: {:?}", message);
         delivery.ack(BasicAckOptions::default()).await.unwrap();
